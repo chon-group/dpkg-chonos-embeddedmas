@@ -1,9 +1,9 @@
 Package: chonos-embeddedmas
-Version: 1.0.0
+Version: 1.0.1
 Priority:
 Architecture: all
 Essential:
-Depends: openjdk-8-jre | openjdk-11-jre | openjdk-17-jre | temurin-8-jre, javino, chonos-ddnsmng (>= 1.0.0), chonos-log (>= 1.0.0)
+Depends: openjdk-8-jre | openjdk-11-jre | openjdk-17-jre | temurin-8-jre, javino
 Pre-depends:
 Suggests:
 Installed-Size:
