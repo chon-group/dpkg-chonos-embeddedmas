@@ -50,13 +50,13 @@ if [ "$opt" = "start" ]; then
         directory="$(dirname "${file}")" 
         cd $directory
         echo " " >> $EmbedMAS_TMP/embeddedMAS.log
-        echo "[$timestamp] Starting the Multi-agent System" >> $EmbedMAS_TMP/embeddedMAS.log
+        echo "[$timestamp] Starting the Multi-Agent System." >> $EmbedMAS_TMP/embeddedMAS.log
         /usr/bin/java -Xms$memory"m" -jar $EmbedMAS_HOME/lib/jason/jasonEmbedded.jar $file -console >> $EmbedMAS_TMP/embeddedMAS.log 2>> $EmbedMAS_TMP/embeddedMAS.log &
         pid=$!
         echo $pid > $EmbedMAS_TMP/embeddedMAS.pid
 
         subdomain=`cat /opt/chonos-embMAS/conf/ddns.conf | cut -d ":" -f 1`
-        echo "{ \"message\" : \"Starting Multi-agent System, process $pid\","
+        echo "{ \"message\" : \"Starting the Multi-Agent System, process $pid\","
         echo "  \"logmonitor\":\"http://$subdomain.bot.chon.group:3271\","
         echo "  \"mindmonitor\":\"http://$subdomain.bot.chon.group:3272\"}"
     else
@@ -68,7 +68,7 @@ elif [ "$opt" = "stop" ]; then
     pid=`cat $EmbedMAS_TMP/embeddedMAS.pid 2> /dev/null`
     if [ "$pid" != "" ]; then
         touch /root/EmbeddedMAS/.stop___MAS
-        echo "[$timestamp] Stopping the Multi-agent System gently" >> $EmbedMAS_TMP/embeddedMAS.log
+        echo "[$timestamp] Stopping the Multi-agent System Gently." >> $EmbedMAS_TMP/embeddedMAS.log
         exec=`ps $pid | grep $pid | xargs | cut -d " " -f 1`
         round=3
         while [ "$exec" = "$pid" ]
@@ -77,16 +77,16 @@ elif [ "$opt" = "stop" ]; then
             exec=`ps $pid | grep $pid | xargs | cut -d " " -f 1`
             if [ $round -eq 0 ]
             then
-                echo "[$timestamp] Killing the Multi-agent System!" >> $EmbedMAS_TMP/embeddedMAS.log
+                echo "[$timestamp] Killing the Multi-Agent System." >> $EmbedMAS_TMP/embeddedMAS.log
                 kill -9 $pid
             fi
             round=$((round-1))
         done
-        echo "[$timestamp] Multi-agent System successfully terminated!" >> $EmbedMAS_TMP/embeddedMAS.log
+        echo "[$timestamp] Multi-Agent System Successfully Terminated!" >> $EmbedMAS_TMP/embeddedMAS.log
         rm -rf $EmbedMAS_TMP/embeddedMAS.pid
-        echo "{ \"message\" : \"Stopping Multi-agent System, process $pid\"}"
+        echo "{ \"message\" : \"Stopping the Multi-Agent System, process $pid\"}"
     else
-        echo "{ \"message\" : \"There is no Multi-agent System in execution\"}"
+        echo "{ \"message\" : \"There is no Multi-Agent System in execution!\"}"
     fi
 elif [ "$opt" = "import" ]; then
     if [ "$file" != "" ]; then
@@ -97,7 +97,7 @@ elif [ "$opt" = "import" ]; then
         directory="$(dirname "${mas2jFile}")"
         rm -rf /root/EmbeddedMAS/*
         mv $directory/* /root/EmbeddedMAS/
-        echo "[$timestamp] Imported MAS" >> $EmbedMAS_TMP/embeddedMAS.log
+        echo "[$timestamp] The Multi-Agent Was Imported!" >> $EmbedMAS_TMP/embeddedMAS.log
     fi
 elif [ "$opt" = "help" ]; then
 	man chonosEmbeddedMAS
