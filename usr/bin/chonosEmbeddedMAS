@@ -1,17 +1,12 @@
 #! /bin/sh
-EmbedMAS_HOME=/opt/chonos-embMAS
 EmbedMAS_TMP=/tmp/.embedMAS
 mkdir -p $EmbedMAS_TMP
 
-timestamp="ChonOS EmbeddedMAS"
-
-while getopts f:l:m:o:-: flag 
+while getopts f:m:-: flag 
     do
     case "${flag}" in
         f) file=${OPTARG};;
-        l) log=${OPTARG};;  
         m) memory=${OPTARG};;
-        o) execOpt=${OPTARG};;
         -) opt=${OPTARG};;
     esac
 done
@@ -49,10 +44,10 @@ if [ "$opt" = "start" ]; then
         
         directory="$(dirname "${file}")" 
         cd $directory
-        echo " " >> $EmbedMAS_TMP/embeddedMAS.log
-        echo "[$timestamp] Starting the Multi-Agent System." >> $EmbedMAS_TMP/embeddedMAS.log
-        /usr/bin/java -Xms$memory"m" -jar $EmbedMAS_HOME/lib/jason/jasonEmbedded.jar $file -console >> $EmbedMAS_TMP/embeddedMAS.log 2>> $EmbedMAS_TMP/embeddedMAS.log &
-        pid=$!
+        /usr/bin/chonos-log -e " "
+        /usr/bin/chonos-log -e "[ChonOS EmbeddedMAS] Starting the Multi-Agent System..."
+        /usr/bin/jasonEmbedded $file -Xms$memory"m" >> $EmbedMAS_TMP/embeddedMAS.log 2>> $EmbedMAS_TMP/embeddedMAS.log &
+        pid=`ps -ax | grep java | grep $file | xargs | cut -d " " -f 1`
         echo $pid > $EmbedMAS_TMP/embeddedMAS.pid
 
         subdomain=`cat /opt/chonos-embMAS/conf/ddns.conf | cut -d ":" -f 1`
@@ -60,15 +55,21 @@ if [ "$opt" = "start" ]; then
         echo "  \"logmonitor\":\"http://$subdomain.bot.chon.group:3271\","
         echo "  \"mindmonitor\":\"http://$subdomain.bot.chon.group:3272\"}"
     else
-        /usr/bin/chonosEmbeddedMAS --stop
-        sleep 1
+        /usr/bin/chonosEmbeddedMAS --stop -f $file
         /usr/bin/chonosEmbeddedMAS --start -f $file
     fi
 elif [ "$opt" = "stop" ]; then
+    
+    if [ "$file" = "" ]
+        then
+            file=/root/EmbeddedMAS/*.mas2j
+    fi
+
     pid=`cat $EmbedMAS_TMP/embeddedMAS.pid 2> /dev/null`
     if [ "$pid" != "" ]; then
-        touch /root/EmbeddedMAS/.stop___MAS
-        echo "[$timestamp] Stopping the Multi-agent System Gently." >> $EmbedMAS_TMP/embeddedMAS.log
+        DIR=$(dirname "$file")
+        touch $DIR/.stop___MAS
+        /usr/bin/chonos-log -e "[ChonOS EmbeddedMAS] Stopping the Multi-agent System Gently..."
         exec=`ps $pid | grep $pid | xargs | cut -d " " -f 1`
         round=3
         while [ "$exec" = "$pid" ]
@@ -77,12 +78,12 @@ elif [ "$opt" = "stop" ]; then
             exec=`ps $pid | grep $pid | xargs | cut -d " " -f 1`
             if [ $round -eq 0 ]
             then
-                echo "[$timestamp] Killing the Multi-Agent System." >> $EmbedMAS_TMP/embeddedMAS.log
+                /usr/bin/chonos-log -e "[ChonOS EmbeddedMAS] Killing the Multi-Agent System..."
                 kill -9 $pid
             fi
             round=$((round-1))
         done
-        echo "[$timestamp] Multi-Agent System Successfully Terminated!" >> $EmbedMAS_TMP/embeddedMAS.log
+        /usr/bin/chonos-log -e "[ChonOS EmbeddedMAS] Multi-Agent System Successfully Terminated!"
         rm -rf $EmbedMAS_TMP/embeddedMAS.pid
         echo "{ \"message\" : \"Stopping the Multi-Agent System, process $pid\"}"
     else
@@ -97,18 +98,9 @@ elif [ "$opt" = "import" ]; then
         directory="$(dirname "${mas2jFile}")"
         rm -rf /root/EmbeddedMAS/*
         mv $directory/* /root/EmbeddedMAS/
-        echo "[$timestamp] The Multi-Agent Was Imported!" >> $EmbedMAS_TMP/embeddedMAS.log
+        /usr/bin/chonos-log -e "[ChonOS EmbeddedMAS] The Multi-Agent Was Imported!"
     fi
-elif [ "$opt" = "help" ]; then
+else
 	man chonosEmbeddedMAS
     exit 0
-fi
-
-if [ "$log" = "term" ]
-then
-    tail -f $EmbedMAS_TMP/embeddedMAS.log
-elif [ "$log" = "clear" ]
-then
-    echo "EmbeddedMAS Log" > $EmbedMAS_TMP/embeddedMAS.log
-    echo "Cleaning EmbeddedMAS Log"
 fi
