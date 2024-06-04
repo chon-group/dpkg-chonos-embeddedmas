@@ -1,8 +1,8 @@
 # ChonOS Embedded Multi-agent System Manager
 
-|![]()|
+|![](https://github.com/chon-group/dpkg-chonos-embeddedmas/assets/32855001/6a5c4bd4-c76b-40b0-b5ea-a652f8d3ac03)|
 |:--:|
-|ChonOS-EmbeddedMAS provides a command line multi-agent system manager.|
+|ChonOS-EmbeddedMAS provides a command line multi-agent system manager it allows the hosting of BDI-based MAS in the reasoning layer of a cyber-physical system.|
 
 ## How to Install?
 In a terminal run the commands below:
