@@ -1,9 +1,9 @@
 Package: chonos-embeddedmas
-Version: 1.2.0
+Version: 1.2.1
 Priority:
 Architecture: all
 Essential:
-Depends: jason-embedded, chonos-log, javino (>= 1.6.0)
+Depends: jason-embedded, chonos-log
 Pre-depends:
 Suggests:
 Installed-Size:
