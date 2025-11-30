@@ -3,7 +3,7 @@ Version: 1.2.2
 Priority:
 Architecture: all
 Essential:
-Depends: jason-cli, jacamo-cli, jason-embedded, chonos-log
+Depends: chonos-log
 Pre-depends: openjdk-21-jdk-headless
 Suggests:
 Installed-Size: 59278
