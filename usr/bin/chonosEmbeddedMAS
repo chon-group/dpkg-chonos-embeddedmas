@@ -95,7 +95,7 @@ if [ "$opt" = "start" ]; then
         pid=`ps -ax | grep java | grep $file | xargs | cut -d " " -f 1`
         echo $pid > $EmbedMAS_TMP/embeddedMAS.pid
 
-        subdomain=`cat /opt/chonos-embMAS/conf/ddns.conf | cut -d ":" -f 1`
+        subdomain=`cat /opt/group.chon/conf/ddns.conf | cut -d ":" -f 1`
         echo "{ \"message\" : \"Starting the Multi-Agent System, process $pid\","
         echo "  \"logmonitor\":\"http://$subdomain.bot.chon.group:3271\","
         echo "  \"mindmonitor\":\"http://$subdomain.bot.chon.group:3272\"}"
