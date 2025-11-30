@@ -1,14 +1,15 @@
 Package: chonos-embeddedmas
-Version: 1.2.1
+Version: 1.2.2
 Priority:
 Architecture: all
 Essential:
-Depends: jason-embedded, chonos-log
-Pre-depends:
+Depends: jason-cli, jacamo-cli, jason-embedded, chonos-log
+Pre-depends: openjdk-21-jdk-headless
 Suggests:
-Installed-Size:
-Maintainer: chon@grupo.cefet-rj.br
-Conflicts:
+Installed-Size: 59278
+Maintainer: Nilson Lazarin <chon@grupo.cefet-rj.br>
+Homepage: https://github.com/chon-group/dpkg-chonos-embeddedmas
+Conflicts: jason-cli, jacamo-cli, jasonEmbeddded
 Replaces:
 Provides:
-Description: Jason Embedded - A Spin-off Version of Jason for Programming Embedded Multiagent Systems
+Description: ChonOS-EmbeddedMAS provides a command line multi-agent system manager it allows the hosting of BDI-based MAS in the reasoning layer of a cyber-physical system.

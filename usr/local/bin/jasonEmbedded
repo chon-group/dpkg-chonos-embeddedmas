@@ -1,0 +1,15 @@
+#!/bin/sh
+FRAMEWORK="/opt/group.chon/lib/bdiFrameworks/jasonEmbedded"
+JVM_OPTS="-XX:+UseSerialGC -Djava.awt.headless=true"
+MEMFILE="/tmp/.embedMAS/memory2MAS"
+MEMORY=""
+
+if [ -f "$MEMFILE" ]; then
+    MEMORY=$(cat "$MEMFILE" 2>/dev/null)
+fi
+
+if [ -n "$MEMORY" ]; then
+    exec /usr/bin/java -Xms${MEMORY}m -Xmx${MEMORY}m $JVM_OPTS -jar "$FRAMEWORK" "$@"
+else
+    exec /usr/bin/java $JVM_OPTS -jar "$FRAMEWORK" "$@"
+fi

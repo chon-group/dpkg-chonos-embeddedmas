@@ -2,14 +2,71 @@
 EmbedMAS_TMP=/tmp/.embedMAS
 mkdir -p $EmbedMAS_TMP
 
-while getopts f:m:-: flag 
+while getopts f:m:i:-: flag 
     do
     case "${flag}" in
-        f) file=${OPTARG};;
-        m) memory=${OPTARG};;
-        -) opt=${OPTARG};;
+        f) file=${OPTARG};;             # file .mas2j, .jcm, or .zip
+        m) memory=${OPTARG};;           # Heap memory in MB
+        i) interpreter=${OPTARG};;      # jason | jasonEmbedded | jacamo
+        -) opt=${OPTARG};;              # --start, --stop, --import
     esac
 done
+
+[ -z "$interpreter" ] && interpreter="jasonEmbedded"
+
+case "$interpreter" in
+    jason|jasonEmbedded|jacamo)
+        ;;
+    *)
+        echo "Unsupported Interpreter: $interpreter" >&2
+        echo "Use: -i jason | -i jasonEmbedded | -i jacamo" >&2
+        exit 1
+        ;;
+esac
+
+EXEC="/usr/local/bin/$interpreter"
+
+
+memoryUSAGE(){
+    # Parâmetros da política
+    OS_MIN_SMALL=256   # reserva pro SO quando RAM < 1GB
+    OS_MIN_BIG=512     # reserva pro SO quando RAM >= 1GB
+    THRESHOLD=1025     # 1 GB em MiB
+    MAS_MIN=128        # mínimo de heap pro MAS
+    SAFETY_OS_MIN=64   # mínimo absoluto de RAM pro SO em cenários extremos
+
+    # Lê MemTotal em MiB (MemTotal vem em KiB)
+    TOTAL_MEM=`cat /proc/meminfo | grep MemTotal | xargs | cut -d " " -f 2 | numfmt --from-unit=Ki --to-unit=Mi`
+
+    # Calcula memória alvo para o MAS conforme política
+    if [ "$TOTAL_MEM" -lt "$THRESHOLD" ]; then
+        MEMORY=$(( TOTAL_MEM - OS_MIN_SMALL ))
+    else
+        MEMORY=$(( TOTAL_MEM - OS_MIN_BIG ))
+    fi
+
+    # Garante um mínimo para o MAS
+    if [ "$MEMORY" -lt "$MAS_MIN" ]; then
+        MEMORY=$MAS_MIN
+    fi
+
+    # Evita valores negativos ou absurdos:
+    # - nunca menos que 32 MiB
+    # - nunca tão grande a ponto de sobrar menos que SAFETY_OS_MIN pro SO
+    if [ "$MEMORY" -lt 32 ]; then
+        MEMORY=32
+    fi
+
+    MAX_FOR_MAS=$(( TOTAL_MEM - SAFETY_OS_MIN ))
+    if [ "$MEMORY" -gt "$MAX_FOR_MAS" ]; then
+        MEMORY=$MAX_FOR_MAS
+    fi
+
+    echo "$MEMORY" > "$EmbedMAS_TMP/memory2MAS"
+
+}
+
+
 
 if [ "$opt" = "start" ]; then
     pid=`cat $EmbedMAS_TMP/embeddedMAS.pid 2> /dev/null`
@@ -23,30 +80,18 @@ if [ "$opt" = "start" ]; then
     then
         if [ "$memory" = "" ]
         then
-            if [ -f $EmbedMAS_TMP/memory2MAS ]
-            then
-                memory=`cat $EmbedMAS_TMP/memory2MAS`
-            
-            else
-                osMinMemory="256"
-                totalMemory=`cat /proc/meminfo | grep MemTotal | xargs | cut -d " " -f 2 | numfmt --from-unit=Ki --to-unit=Mi`
-                maxMemoryUsage=`expr $totalMemory - $osMinMemory`
-                if [ $maxMemoryUsage -le 1024 ]
-                then
-                    memory=$maxMemoryUsage
-                else
-                    memory="1024"
-                fi
-                echo $memory > $EmbedMAS_TMP/memory2MAS
-                
-            fi
+            memoryUSAGE
+        else
+            echo "$memory" > "$EmbedMAS_TMP/memory2MAS"
         fi
         
         directory="$(dirname "${file}")" 
         cd $directory
         /usr/bin/chonos-log -e " "
         /usr/bin/chonos-log -e "[ChonOS EmbeddedMAS] Starting the Multi-Agent System..."
-        /usr/bin/jasonEmbedded $file -Xms$memory"m" >> $EmbedMAS_TMP/embeddedMAS.log 2>> $EmbedMAS_TMP/embeddedMAS.log &
+        #        /usr/bin/jasonEmbedded $file -Xms$memory"m" >> $EmbedMAS_TMP/embeddedMAS.log 2>> $EmbedMAS_TMP/embeddedMAS.log &
+        $EXEC $file >> $EmbedMAS_TMP/embeddedMAS.log 2>> $EmbedMAS_TMP/embeddedMAS.log &
+
         pid=`ps -ax | grep java | grep $file | xargs | cut -d " " -f 1`
         echo $pid > $EmbedMAS_TMP/embeddedMAS.pid
 
@@ -101,6 +146,6 @@ elif [ "$opt" = "import" ]; then
         /usr/bin/chonos-log -e "[ChonOS EmbeddedMAS] The Multi-Agent Was Imported!"
     fi
 else
-	man chonosEmbeddedMAS
+	echo "Consult tutorial at: https://github.com/chon-group/dpkg-chonos-embeddedmas"
     exit 0
 fi

@@ -1,0 +1,72 @@
+#!/bin/sh
+FRAMEWORK="/opt/group.chon/lib/bdiFrameworks/jason"
+JVM_OPTS="-XX:+UseSerialGC -Djava.awt.headless=true"
+MEMFILE="/tmp/.embedMAS/memory2MAS"
+MEMORY=""
+
+if [ -f "$MEMFILE" ]; then
+    MEMORY=$(cat "$MEMFILE" 2>/dev/null)
+fi
+
+case "$1" in
+    ""|-h|--help|-V|--version|app|mas|agent)
+        exec "$FRAMEWORK" "$@"
+        ;;
+esac
+
+# Procura um argumento .mas2j
+mas2j_path=""
+for arg in "$@"; do
+    case "$arg" in
+        *.mas2j)
+            mas2j_path="$arg"
+            ;;
+    esac
+done
+
+# Ajustando o arquivo de log, forçando saída para terminal...
+if [ -n "$mas2j_path" ]; then
+    # Descobre diretório do projeto em caminho absoluto, sem [[ ]]
+    case "$mas2j_path" in
+        /*)
+            proj_dir=`dirname "$mas2j_path"`
+            ;;
+        *)
+            dir_part=`dirname "$mas2j_path"`
+            oldpwd=`pwd`
+            cd "$dir_part" 2>/dev/null || exit 1
+            proj_dir=`pwd`
+            cd "$oldpwd" 2>/dev/null || :
+            ;;
+    esac
+
+    log_file="$proj_dir/logging.properties"
+
+    if [ -f "$log_file" ]; then
+        tmp_file="${log_file}.tmp.$$"
+        sed 's/jason\.runtime\.MASConsoleLogHandler/java.util.logging.ConsoleHandler/g' \
+            "$log_file" > "$tmp_file" && \
+        mv "$tmp_file" "$log_file"
+    else
+        tee "$proj_dir/logging.properties" > /dev/null <<'EOF'
+#Created by Chonos EmbeddedMAS
+handlers= java.util.logging.ConsoleHandler
+.level = INFO
+java.util.logging.ConsoleHandler.formatter = jason.runtime.MASConsoleLogFormatter
+java.util.logging.ConsoleHandler.tabbed = false
+java.util.logging.ConsoleHandler.colors = false
+java.util.logging.ConsoleHandler.level = FINE
+java.level=OFF
+javax.level=OFF
+sun.level=OFF
+jade.level=OFF
+EOF
+    fi
+fi
+
+
+if [ -n "$MEMORY" ]; then
+    exec /usr/bin/java -Xms${MEMORY}m -Xmx${MEMORY}m $JVM_OPTS -jar "$FRAMEWORK" "$@"
+else
+    exec /usr/bin/java $JVM_OPTS -jar "$FRAMEWORK" "$@"
+fi
