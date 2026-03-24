@@ -1,10 +1,10 @@
 Package: chonos-embeddedmas
-Version: 25.12.04
+Version: 26.03.24
 Priority:
 Architecture: all
 Essential:
 Depends: chonos-log
-Pre-depends: openjdk-21-jdk-headless
+Pre-depends: openjdk-21-jdk-headless | temurin-21-jdk | bellsoft-java21-lite
 Suggests:
 Installed-Size: 59278
 Maintainer: Nilson Lazarin <chon@grupo.cefet-rj.br>
