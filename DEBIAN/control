@@ -1,15 +1,15 @@
 Package: chonos-embeddedmas
-Version: 26.03.24
+Version: 26.03.26
 Priority:
 Architecture: all
 Essential:
 Depends: chonos-log
-Pre-depends: openjdk-21-jdk-headless | temurin-21-jdk | bellsoft-java21-lite
+Pre-depends: jason-cli, jacamo-cli, jason-embedded
 Suggests:
 Installed-Size: 59278
 Maintainer: Nilson Lazarin <chon@grupo.cefet-rj.br>
 Homepage: https://github.com/chon-group/dpkg-chonos-embeddedmas
-Conflicts: jason-cli, jacamo-cli, jasonEmbeddded
+Conflicts:
 Replaces:
 Provides:
 Description: ChonOS-EmbeddedMAS provides a command line multi-agent system manager it allows the hosting of BDI-based MAS in the reasoning layer of a cyber-physical system.

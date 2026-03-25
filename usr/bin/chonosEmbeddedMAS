@@ -24,7 +24,7 @@ case "$interpreter" in
         ;;
 esac
 
-EXEC="/usr/local/bin/$interpreter"
+EXEC="/usr/bin/$interpreter"
 
 
 memoryUSAGE(){
