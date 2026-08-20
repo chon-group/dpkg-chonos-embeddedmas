@@ -1,12 +1,12 @@
 Package: chonos-embeddedmas
-Version: 26.03.27
+Version: 26.08.20
 Priority:
 Architecture: all
 Essential:
 Depends: chonos-log
-Pre-depends: openjdk-21-jdk-headless | bellsoft-java21-lite | temurin-21-jdk, jason-cli, jacamo-cli, jason-embedded
+Pre-depends: openjdk-21-jdk-headless | bellsoft-java21-lite | temurin-21-jdk, jason-cli, jacamo-cli, jason-embedded, zip, unzip
 Suggests:
-Installed-Size:
+Installed-Size: 55600
 Maintainer: Nilson Lazarin <chon@grupo.cefet-rj.br>
 Homepage: https://github.com/chon-group/dpkg-chonos-embeddedmas
 Conflicts:
